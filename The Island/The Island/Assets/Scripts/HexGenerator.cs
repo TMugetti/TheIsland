@@ -205,21 +205,39 @@ public class HexGenerator : MonoBehaviour
         );
 
         //Step 2: Create triangles from "male" faces to adjacent "female" faces
+        int preCombiningVertCount = triangles.Count;
+
         hexCounter = 0;
-        int femaleHexIndex;
+        int receivingHexIndex;
+        Vector2Int hexBelow = new Vector2Int();
+        Vector2Int hexTopRight = new Vector2Int();
+        Vector2Int hexBottomRight = new Vector2Int();
+        Vector2Int hexAbove = new Vector2Int();
+        Vector2Int hexBottomLeft = new Vector2Int();
+        Vector2Int hexTopLeft = new Vector2Int();
+
         for (int x = radius * -1; x < radius +1; x++){
             for (int y = radius * -1; y < radius +1; y++){
                 int z = 0 - x - y;
                 if(z >= radius * -1 && z <= radius){
-                    if(hexEnumerator.Contains(new Vector2Int(x,z-1))){ //if there is a hex below
-                        femaleHexIndex = hexEnumerator.IndexOf(new Vector2Int(x,z-1));
+                    //1 increment in x moves top right
+                    //1 increment in z moves up
+                    hexBelow.x = x;           hexBelow.y = z - 1;
+                    hexTopRight.x = x + 1;    hexTopRight.y = z;
+                    hexBottomRight.x = x + 1; hexBottomRight.y = z - 1; 
+                    hexAbove.x = x;           hexAbove.y = z + 1;
+                    hexBottomLeft.x = x - 1;  hexBottomLeft.y = z; 
+                    hexTopLeft.x = x - 1;     hexTopLeft.y = z + 1;
+
+                    if(hexEnumerator.Contains(hexBelow)){
+                        receivingHexIndex = hexEnumerator.IndexOf(hexBelow);
                         triangles.Add(1 + hexCounter * 6);
                         triangles.Add(3 + hexCounter * 6);
-                        triangles.Add(2 + femaleHexIndex * 6);
+                        triangles.Add(2 + receivingHexIndex * 6);
 
                         triangles.Add(3 + hexCounter * 6);
-                        triangles.Add(4 + femaleHexIndex * 6);
-                        triangles.Add(2 + femaleHexIndex * 6);
+                        triangles.Add(4 + receivingHexIndex * 6);
+                        triangles.Add(2 + receivingHexIndex * 6);
                     } else {
                         int index1 = vertices.Count;
                         Vector3 index1Vert = vertices[1 + hexCounter * 6];
@@ -240,14 +258,14 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index1);
 
                     }
-                    if(hexEnumerator.Contains(new Vector2Int(x + 1,z))){
-                        femaleHexIndex = hexEnumerator.IndexOf(new Vector2Int(x +1, z));
+                    if(hexEnumerator.Contains(hexTopRight)){
+                        receivingHexIndex = hexEnumerator.IndexOf(hexTopRight);
                         triangles.Add(5 + hexCounter * 6);
                         triangles.Add(4 + hexCounter * 6);
-                        triangles.Add(0 + femaleHexIndex * 6);
+                        triangles.Add(0 + receivingHexIndex * 6);
 
-                        triangles.Add(0 + femaleHexIndex * 6);
-                        triangles.Add(1 + femaleHexIndex * 6);
+                        triangles.Add(0 + receivingHexIndex * 6);
+                        triangles.Add(1 + receivingHexIndex * 6);
                         triangles.Add(5 + hexCounter * 6);
                     } else {
                         int index4 = vertices.Count;
@@ -269,15 +287,15 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index5);
 
                     }
-                    if(hexEnumerator.Contains(new Vector2Int(x + 1,z-1))){
-                        femaleHexIndex = hexEnumerator.IndexOf(new Vector2Int(x + 1, z -1));
+                    if(hexEnumerator.Contains(hexBottomRight)){
+                        receivingHexIndex = hexEnumerator.IndexOf(hexBottomRight);
                         triangles.Add(3 + hexCounter * 6);
                         triangles.Add(5 + hexCounter * 6);
-                        triangles.Add(2 + femaleHexIndex * 6);
+                        triangles.Add(2 + receivingHexIndex * 6);
 
                         triangles.Add(3 + hexCounter * 6);
-                        triangles.Add(2 + femaleHexIndex * 6);
-                        triangles.Add(0 + femaleHexIndex * 6);
+                        triangles.Add(2 + receivingHexIndex * 6);
+                        triangles.Add(0 + receivingHexIndex * 6);
                     } else {
                         int index5 = vertices.Count;
                         Vector3 index5Vert = vertices[5 + hexCounter * 6];
@@ -297,7 +315,7 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index3);
                         triangles.Add(3 + hexCounter * 6);
                     }
-                    if(!hexEnumerator.Contains(new Vector2Int(x,z + 1))){
+                    if(!hexEnumerator.Contains(hexAbove)){
                         int index2 = vertices.Count;
                         Vector3 index2Vert = vertices[2 + hexCounter * 6];
                         index2Vert.y = 0;
@@ -316,7 +334,7 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index4);
                         triangles.Add(4 + hexCounter * 6);
                     }
-                    if(!hexEnumerator.Contains(new Vector2Int(x - 1,z))){
+                    if(!hexEnumerator.Contains(hexBottomLeft)){
                         int index0 = vertices.Count;
                         Vector3 index0Vert = vertices[0 + hexCounter * 6];
                         index0Vert.y = 0;
@@ -335,7 +353,7 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index0);
                         triangles.Add(0 + hexCounter * 6);
                     }
-                    if(!hexEnumerator.Contains(new Vector2Int(x - 1,z + 1))){
+                    if(!hexEnumerator.Contains(hexTopLeft)){
                         int index2 = vertices.Count;
                         Vector3 index2Vert = vertices[2 + hexCounter * 6];
                         index2Vert.y = 0;
