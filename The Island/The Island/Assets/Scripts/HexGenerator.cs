@@ -398,5 +398,7 @@ public class HexGenerator : MonoBehaviour
         MeshRenderer mr = resultingGO.AddComponent<MeshRenderer>();
 
         mf.sharedMesh = resultingMesh;
+        Debug.Log("Final vertex count: " + vertices.Count);
+        Debug.Log("Vertices per hex " + vertices.Count / hexCounter);
     }
 }
