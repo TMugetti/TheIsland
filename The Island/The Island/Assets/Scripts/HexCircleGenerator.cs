@@ -4,8 +4,45 @@ using UnityEngine;
 
 public class HexCircleGenerator : MonoBehaviour
 {
+    /*
+    According to https://docs.unity3d.com/ScriptReference/Mesh-indexFormat.html, the vertex limit is  65535, 
+    if we want to be able to build for mobile.
+    knowing:
+    About Arithmetic progression
+    A given radius r
+    That there will be 6 vertices per hexagon, if r is equal or greater than 8
+    The ammount of hexes a = 1 + 6*r(r+1)/2 , since it can be describes as the center hexagon, plus r concentric rings of radiuses ( 1 -> r) * 6 hexagons
+    And the amount of verts = a * 6
+
+    meaning that our radius limit can be deduced as follows:
+    65535 = a * 6
+    65535 = (1 + 6*r(r+1)/2) * 6
+    65535 / 6 = 1 + 6*r(r+1)/2
+    10922.5 - 1 = 6*r(r+1)/2
+    10921.5 / 6 = r(r+1)/2
+    1820.25 * 2 = r(r+1)
+    3640.5 = r(r+1)
+    3640.5 = r*r + r
+    0 = 1*r*r + 1*r - 3640.5                    from here we apply baskara
+    r1 = -1 * ((1 + sqrt(1 - 4 * 1 * (-3640.5)))/2*1)
+    r2 = -1 * ((1 - sqrt(1 - 4 * 1 * (-3640.5)))/2*1)
+    r1 = -1 * ((1 + sqrt(1 + 14562))/2)
+    r2 = -1 * ((1 - sqrt(1 + 14562))/2)
+    r1 = -1 * ((1 + sqrt(14563))/2)
+    r2 = -1 * ((1 - sqrt(14563))/2)       {sqrt(14563) = 120.67725552066553357095917599082}
+    r1 = -1 * ((1 + 120.68/2)
+    r2 = -1 * ((1 - 120.68)/2)
+    r1 = -1 * ((121.68/2)
+    r2 = -1 * ((-119.68)/2)
+    r1 = -1 * 60.84
+    r2 = -1 * (-59.84)
+    r1 = -60.84
+    r2 = 59.84
+
+    Since we cannot have negative, nor non-integer, radius, this means our radius limit is 59.
+*/
     [SerializeField] GameObject sampleHex;
-    [SerializeField] int radius;
+    [Range(8,59)][SerializeField] int radius;
     [Range(0f,1f)][SerializeField] float minHeightClamp;
     [Range(0f,1f)][SerializeField] float maxHeightClamp;
     [SerializeField] float heightScale;
@@ -21,11 +58,6 @@ public class HexCircleGenerator : MonoBehaviour
 
 
     void OnValidate(){
-        if(radius <= 0){
-            radius = 1;
-        } /*else if(radius %2 == 0){
-            radius +=1;
-        }*/
         hexes = new GameObject[(radius * 2) + 1, (radius * 2) + 1,(radius * 2) + 1];
         if(sampleHex){
             Vector3 HexSize = sampleHex.GetComponent<MeshFilter>().sharedMesh.bounds.size;
