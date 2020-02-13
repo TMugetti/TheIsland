@@ -49,6 +49,7 @@ public class HexCircleGenerator : MonoBehaviour
     [SerializeField] float perlinScale;
     [SerializeField] float coneRadius;
     [Range(0f,1f)][SerializeField] float coneToPerlinRatio;
+    [SerializeField] Material[] materials;
 
     private float hexHeight;
     private float hexWidth;
@@ -181,7 +182,7 @@ public class HexCircleGenerator : MonoBehaviour
     }
 
     public void TestMeshCombiner(){
-        HexGenerator.TESTJoinHexagonsInCircle(hexes);
+        HexGenerator.TESTJoinHexagonsInCircle(hexes, materials);
         ClearHexes();
     }
 }

@@ -161,7 +161,7 @@ public class HexGenerator : MonoBehaviour
     First, since we won't create any new vertices, we join all of them in a list. And do the same with the triangles.
     Then, we create triangles between "male" sides that are next to "female" sides of nearby hexes.
     */
-    public static void TESTJoinHexagonsInCircle(GameObject[,,] hexesGOs){
+    public static void TESTJoinHexagonsInCircle(GameObject[,,] hexesGOs, Material[] mats){
         int radius = (hexesGOs.GetLength(0) -1) /2;
         Debug.Log("Radius: " + radius);
 
@@ -202,11 +202,15 @@ public class HexGenerator : MonoBehaviour
             " Verts in list: " + vertices.Count +
             " Expected tris: " + (hexCounter * 4) + 
             " Tris in list: " + (triangles.Count/3)
-        );
+        );    
+
+
+        //we create some variables for later use 
+        int preCombiningTriangleCount = triangles.Count;
+        float maxHeightDifference = 0f;
+        float difference;
 
         //Step 2: Create triangles from "male" faces to adjacent "female" faces
-        int preCombiningVertCount = triangles.Count;
-
         hexCounter = 0;
         int receivingHexIndex;
         Vector2Int hexBelow = new Vector2Int();
@@ -231,6 +235,7 @@ public class HexGenerator : MonoBehaviour
 
                     if(hexEnumerator.Contains(hexBelow)){
                         receivingHexIndex = hexEnumerator.IndexOf(hexBelow);
+
                         triangles.Add(1 + hexCounter * 6);
                         triangles.Add(3 + hexCounter * 6);
                         triangles.Add(2 + receivingHexIndex * 6);
@@ -238,6 +243,11 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(3 + hexCounter * 6);
                         triangles.Add(4 + receivingHexIndex * 6);
                         triangles.Add(2 + receivingHexIndex * 6);
+
+                        difference = vertices[triangles[0 + hexCounter * 6]].y - 
+                                     vertices[triangles[0 + receivingHexIndex * 6]].y;
+                        maxHeightDifference =  RecordDifferenceInMagnitude(difference, maxHeightDifference);
+
                     } else {
                         int index1 = vertices.Count;
                         Vector3 index1Vert = vertices[1 + hexCounter * 6];
@@ -257,6 +267,9 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index3);
                         triangles.Add(index1);
 
+                        difference = vertices[triangles[0 + hexCounter * 6]].y - 0f;
+                        maxHeightDifference =  RecordDifferenceInMagnitude(difference, maxHeightDifference);
+
                     }
                     if(hexEnumerator.Contains(hexTopRight)){
                         receivingHexIndex = hexEnumerator.IndexOf(hexTopRight);
@@ -267,6 +280,10 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(0 + receivingHexIndex * 6);
                         triangles.Add(1 + receivingHexIndex * 6);
                         triangles.Add(5 + hexCounter * 6);
+
+                        difference = vertices[triangles[0 + hexCounter * 6]].y - 
+                                     vertices[triangles[0 + receivingHexIndex * 6]].y;
+                        maxHeightDifference =  RecordDifferenceInMagnitude(difference, maxHeightDifference);
                     } else {
                         int index4 = vertices.Count;
                         Vector3 index4Vert = vertices[4 + hexCounter * 6];
@@ -286,6 +303,9 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index4);
                         triangles.Add(index5);
 
+                        difference = vertices[triangles[0 + hexCounter * 6]].y - 0f;
+                        maxHeightDifference =  RecordDifferenceInMagnitude(difference, maxHeightDifference);
+
                     }
                     if(hexEnumerator.Contains(hexBottomRight)){
                         receivingHexIndex = hexEnumerator.IndexOf(hexBottomRight);
@@ -296,6 +316,11 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(3 + hexCounter * 6);
                         triangles.Add(2 + receivingHexIndex * 6);
                         triangles.Add(0 + receivingHexIndex * 6);
+
+                        difference = vertices[triangles[0 + hexCounter * 6]].y - 
+                                     vertices[triangles[0 + receivingHexIndex * 6]].y;
+                        maxHeightDifference =  RecordDifferenceInMagnitude(difference, maxHeightDifference);
+
                     } else {
                         int index5 = vertices.Count;
                         Vector3 index5Vert = vertices[5 + hexCounter * 6];
@@ -314,6 +339,9 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index5);
                         triangles.Add(index3);
                         triangles.Add(3 + hexCounter * 6);
+
+                        difference = vertices[triangles[0 + hexCounter * 6]].y - 0f;
+                        maxHeightDifference =  RecordDifferenceInMagnitude(difference, maxHeightDifference);
                     }
                     if(!hexEnumerator.Contains(hexAbove)){
                         int index2 = vertices.Count;
@@ -333,6 +361,9 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index2);
                         triangles.Add(index4);
                         triangles.Add(4 + hexCounter * 6);
+
+                        difference = vertices[triangles[0 + hexCounter * 6]].y - 0f;
+                        maxHeightDifference =  RecordDifferenceInMagnitude(difference, maxHeightDifference);
                     }
                     if(!hexEnumerator.Contains(hexBottomLeft)){
                         int index0 = vertices.Count;
@@ -352,6 +383,9 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index1);
                         triangles.Add(index0);
                         triangles.Add(0 + hexCounter * 6);
+
+                        difference = vertices[triangles[0 + hexCounter * 6]].y - 0f;
+                        maxHeightDifference =  RecordDifferenceInMagnitude(difference, maxHeightDifference);
                     }
                     if(!hexEnumerator.Contains(hexTopLeft)){
                         int index2 = vertices.Count;
@@ -371,11 +405,16 @@ public class HexGenerator : MonoBehaviour
                         triangles.Add(index0);
                         triangles.Add(index2);
                         triangles.Add(2 + hexCounter * 6);
+
+                        difference = vertices[triangles[0 + hexCounter * 6]].y - 0f;
+                        maxHeightDifference =  RecordDifferenceInMagnitude(difference, maxHeightDifference);
                     }
                     hexCounter++;
                 }
             }
         }
+        Debug.Log("Final vertex count: " + vertices.Count);
+        Debug.Log("Vertices per hex " + vertices.Count / hexCounter);
 
         Mesh resultingMesh = new Mesh();
         resultingMesh.Clear();
@@ -383,12 +422,35 @@ public class HexGenerator : MonoBehaviour
         resultingMesh.vertices = vertices.ToArray();
         resultingMesh.triangles = triangles.ToArray();
 
-        List<Vector2> uvs = new List<Vector2>();
-        foreach(Vector3 point in vertices){
-            uvs.Add(new Vector2(point.x,point.z));
+        //Separate hexes into a submesh, and sides into another.
+
+        resultingMesh.subMeshCount = 2;
+
+        
+        int[] subMesh0Tris = new int[preCombiningTriangleCount];
+        int[] subMesh1Tris = new int[triangles.Count - preCombiningTriangleCount];
+
+        for(int i = 0; i < preCombiningTriangleCount; i++){
+            subMesh0Tris[i] = triangles[i];
+        }
+        for (int i = preCombiningTriangleCount; i < triangles.Count; i++){
+            subMesh1Tris[i - preCombiningTriangleCount] = triangles[i];
         }
 
-        resultingMesh.uv = uvs.ToArray();
+        resultingMesh.SetTriangles(subMesh0Tris, 0);
+        resultingMesh.SetTriangles(subMesh1Tris, 1);
+
+        Vector2[] uvs = new Vector2[vertices.Count];
+        for(int i = 0; i < vertices.Count; i+=6){
+            uvs[i + 0] = new Vector2(hexVerts[0].x, hexVerts[0].z);
+            uvs[i + 1] = new Vector2(hexVerts[1].x, hexVerts[1].z);
+            uvs[i + 2] = new Vector2(hexVerts[2].x, hexVerts[2].z);
+            uvs[i + 3] = new Vector2(hexVerts[3].x, hexVerts[3].z);
+            uvs[i + 4] = new Vector2(hexVerts[4].x, hexVerts[4].z);
+            uvs[i + 5] = new Vector2(hexVerts[5].x, hexVerts[5].z);
+        }
+
+        resultingMesh.uv = uvs;
 
         resultingMesh.RecalculateBounds();
         resultingMesh.RecalculateNormals();
@@ -397,8 +459,18 @@ public class HexGenerator : MonoBehaviour
         MeshFilter mf = resultingGO.AddComponent<MeshFilter>();
         MeshRenderer mr = resultingGO.AddComponent<MeshRenderer>();
 
+        mr.materials = mats;
+
         mf.sharedMesh = resultingMesh;
-        Debug.Log("Final vertex count: " + vertices.Count);
-        Debug.Log("Vertices per hex " + vertices.Count / hexCounter);
+    }
+
+    private static float RecordDifferenceInMagnitude(float value, float storingVariable){
+        if (value < 0f){
+            value *= -1f;
+        }
+        if(value > storingVariable){
+            return value;
+        }
+        return storingVariable;
     }
 }
